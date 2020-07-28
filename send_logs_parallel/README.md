@@ -11,4 +11,4 @@ export TAG=tag
 export MESSAGES_PER_SECOND=2000
 
 
-sudo docker run -v $LOGS_DIR:/app/mounted_logs --log-driver syslog --log-opt syslog-address=$PROT://$DST --log-opt syslog-format=rfc5424  --log-opt tag=$TAG -e messages_per_second=$MESSAGES_PER_SECOND -d log-sender
+sudo docker run -v $LOGS_DIR:/app/mounted_logs --log-driver syslog --log-opt syslog-address=$PROT://$DST --log-opt syslog-format=rfc5424  --log-opt tag=$TAG -e messages_per_second=$MESSAGES_PER_SECOND -e loop=false -d log-sender
