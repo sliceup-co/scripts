@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Main-v2",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/send_logs_parallel-v2/main.py",
+            "console": "integratedTerminal",
+            "args" : [  "--loop", "false", 
+                        "--dst", "10.12.2.130:5145", 
+                        "--rate", "1000", 
+                        "--loc", "/home/aarpi/slice1/scripts/send_logs_parallel-v2/mounted_logs",
+                        "--hosts", "3",
+                        "--hostname", "andres-ubuntu",
+                        "--debug", "10000"]
+        }
+    ]
+}
