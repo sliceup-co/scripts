@@ -56,7 +56,7 @@ class Handler:
     def get_syslog_message(self, message):
         return Handler.BASE_MESSAGE.format(self.get_now(), self.get_host(), message)
 
-    def send_syslog_message(self, message):
+    def send_syslog_message(self, message, files_open):
         mes = self.get_syslog_message(message)
         while (True):
             try:
@@ -74,7 +74,7 @@ class Handler:
 
         self.global_messages_sent += 1
         if (self.global_messages_sent == self.debug_every):
-            log("sent {} message".format(self.debug_every))
+            log("sent {} message with {} files open".format(self.debug_every, files_open))
             self.global_messages_sent = 0
 
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                 try:
                     a = next(file_handlers[idx])
                     try:
-                        handler.send_syslog_message(a)
+                        handler.send_syslog_message(a, len(file_handlers))
                     except Exception as e:
                         print(e)
                     count[idx] += 1
