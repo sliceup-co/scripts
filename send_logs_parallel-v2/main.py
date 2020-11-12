@@ -13,17 +13,17 @@ from datetime import datetime
 import numpy as np
 import logging
 
-logFormatter = '%(asctime)s - %(user)s - %(levelname)s - %(message)s'
+logFormatter = '%(asctime)s - %(pid)s - %(user)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=logFormatter, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def log(message):
-    logger.info(message, extra={'user': 'sliceup-log-sender'})
+    logger.info(message, extra={'user': 'sliceup-log-sender', 'pid': os.getpid()})
 
 
 
 class Handler:
-    BASE_MESSAGE = '<14>1 {} {} Rhttpproxy - - [Originator@6876 loc="cdeww" fwd="cdeww" vcenter="cdeww" imp="infra" lmp="infra"] {}'    
+    BASE_MESSAGE = '<14>1 {} {} Rhttpproxy - - [00Originator@6876 loc="cdeww" fwd="cdeww" vcenter="cdeww" imp="infra" lmp="infra"] {}'    
 
     def __init__(self, n, dst, messages_per_second, hostname, debug_every = 10000):
         self.n = n
@@ -121,11 +121,13 @@ if __name__ == "__main__":
     while(True):
         onlyfiles_reserve = [f for f in listdir(LOGS_DIR) if isfile(join(LOGS_DIR, f))]
         onlyfiles_reserve = [f for f in onlyfiles_reserve if ((len(f) > 4) and (f[-4:] == ".log"))]
+
+        RESERVE_SIZE = 4
         while (len(onlyfiles_reserve) > 0):
 
-            if (len(onlyfiles_reserve) > 10):
-                onlyfiles = onlyfiles_reserve[:10]
-                onlyfiles_reserve = onlyfiles_reserve[10:]
+            if (len(onlyfiles_reserve) > RESERVE_SIZE):
+                onlyfiles = onlyfiles_reserve[:RESERVE_SIZE]
+                onlyfiles_reserve = onlyfiles_reserve[RESERVE_SIZE:]
             else:
                 onlyfiles = onlyfiles_reserve[:]
                 onlyfiles_reserve = onlyfiles_reserve[len(onlyfiles_reserve):]
@@ -146,13 +148,21 @@ if __name__ == "__main__":
                     sys.exit()
         
                 except:
-                    log("Removing {} ({})".format(onlyfiles[idx], count[idx]))
+                    #log("Removing {} ({})".format(onlyfiles[idx], count[idx]))
                     file_handlers.pop(idx)
                     count.pop(idx)
+
+                    onlyfiles_reserve.append(onlyfiles.pop(idx))                    
+                   
+                    new_file_idx = random.randint(0, len(onlyfiles_reserve) - 2)
+                    new_file = onlyfiles_reserve[new_file_idx]
+                    onlyfiles.append(onlyfiles_reserve.pop(new_file_idx))
+                    file_handlers.append(open(join(LOGS_DIR,new_file), "r"))
+                    count.append(0)
+
+
         
         if (not LOOP):
             break
         print("Starting another round ...")
     log("exiting...")
-
-
