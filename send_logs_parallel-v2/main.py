@@ -128,7 +128,7 @@ if __name__ == "__main__":
         onlyfiles_reserve = [f for f in listdir(LOGS_DIR) if isfile(join(LOGS_DIR, f))]
         onlyfiles_reserve = [f for f in onlyfiles_reserve if ((len(f) > 4) and (f[-4:] == ".log"))]
 
-        RESERVE_SIZE = 4
+        RESERVE_SIZE = 400
         while (len(onlyfiles_reserve) > 0):
 
             if (len(onlyfiles_reserve) > RESERVE_SIZE):
