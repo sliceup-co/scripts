@@ -25,7 +25,7 @@ def log(message):
 class Handler:
     BASE_MESSAGE = '<14>1 {} {} Rhttpproxy - - [00Originator@6876 loc="cdeww" fwd="cdeww" vcenter="cdeww" imp="infra" lmp="infra"] {}'    
 
-    def __init__(self, n, dst, messages_per_second, hostname, debug_every = 10000):
+    def __init__(self, n, dst, messages_per_second, hostname, debug_every = 10000, max_message_length = 999999):
         self.n = n
         self.hostnames, self.host_dist = self.get_hosts(hostname)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,6 +38,7 @@ class Handler:
         self.last_update = datetime.now()
         self.back_off_time = 1
         self.debug_every = debug_every
+        self.max_message_length = max_message_length
 
     def get_now(self):
         return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.0Z")
@@ -54,6 +55,9 @@ class Handler:
         return self.hostnames[np.random.choice(self.n, p=self.host_dist)]
 
     def get_syslog_message(self, message):
+        if (len(message) > self.max_message_length):
+            message = message[:self.max_message_length] + message[-1]
+
         return Handler.BASE_MESSAGE.format(self.get_now(), self.get_host(), message)
 
     def send_syslog_message(self, message, files_open):
@@ -99,6 +103,7 @@ if __name__ == "__main__":
     parser.add_argument('--hosts', help='The number of virtual logs')
     parser.add_argument('--hostname', help='The name that the host will take.')
     parser.add_argument('--debug', help='After how many messages will the program log.')
+    parser.add_argument('--max-message-length', help='The maximun length a log line can have.')
 
 
     args = parser.parse_args()
@@ -110,12 +115,13 @@ if __name__ == "__main__":
     LOGS_DIR = args.loc
     SLEEP_TIME = 1.0 / float(args.rate)
     LOOP = True if args.loop.lower() == "true" else False
-    DST = args.dst.split(":")[0], int(args.dst.split(":")[1])
+    DSTS = [ (dst.split(":")[0], int(dst.split(":")[1])) for dst in args.dst.split(",") ]
     HOSTS_N = int(args.hosts)
     HOSTNAME = args.hostname
     DEBUG_EVERY = int(args.debug)
+    MAX_MESSAGE_LENGTH = int(args.max_message_length)
 
-    handler = Handler(HOSTS_N, DST, int(args.rate), HOSTNAME, debug_every=DEBUG_EVERY)
+    handlers = [Handler(HOSTS_N, DST, int(args.rate), HOSTNAME, debug_every=DEBUG_EVERY, max_message_length=MAX_MESSAGE_LENGTH) for DST in DSTS]
     
     
     while(True):
@@ -140,7 +146,7 @@ if __name__ == "__main__":
                 try:
                     a = next(file_handlers[idx])
                     try:
-                        handler.send_syslog_message(a, len(file_handlers))
+                        [handler.send_syslog_message(a, len(file_handlers)) for handler in handlers]
                     except Exception as e:
                         print(e)
                     count[idx] += 1
