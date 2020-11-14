@@ -11,13 +11,13 @@
             "program": "${workspaceFolder}/send_logs_parallel-v2/main.py",
             "console": "integratedTerminal",
             "args" : [  "--loop", "false", 
-                        "--dst", "0.0.0.0:5141,10.12.2.190:514", 
+                        "--dst", "0.0.0.0:5141", 
                         "--rate", "4000", 
                         "--loc", "/home/aarpi/slice1/scripts/send_logs_parallel-v2/mounted_logs",
                         "--hosts", "3",
                         "--hostname", "andres-ubuntu",
-                        "--debug", "10000",
-                        "--max-message-length", "20"]
+                        "--debug", "4000",
+                        "--max-message-length", "200"]
         }
     ]
 }

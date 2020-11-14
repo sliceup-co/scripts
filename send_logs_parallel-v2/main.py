@@ -81,6 +81,7 @@ class Handler:
         self.global_messages_sent += 1
         if (self.global_messages_sent == self.debug_every):
             log("sent {} messages ({} truncated) with {} files open".format(self.debug_every, self.truncated, files_open))
+            self.truncated = 0
             self.global_messages_sent = 0
 
 
