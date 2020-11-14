@@ -35,6 +35,7 @@ class Handler:
         self.messages_per_second = messages_per_second
         self.messages_sent = 0
         self.global_messages_sent = 0
+        self.truncated = 0
         self.last_update = datetime.now()
         self.back_off_time = 1
         self.debug_every = debug_every
@@ -57,6 +58,7 @@ class Handler:
     def get_syslog_message(self, message):
         if (len(message) > self.max_message_length):
             message = message[:self.max_message_length] + message[-1]
+            self.truncated += 1
 
         return Handler.BASE_MESSAGE.format(self.get_now(), self.get_host(), message)
 
@@ -78,7 +80,7 @@ class Handler:
 
         self.global_messages_sent += 1
         if (self.global_messages_sent == self.debug_every):
-            log("sent {} message with {} files open".format(self.debug_every, files_open))
+            log("sent {} messages ({} truncated) with {} files open".format(self.debug_every, self.truncated, files_open))
             self.global_messages_sent = 0
 
 
